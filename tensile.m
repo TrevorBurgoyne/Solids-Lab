@@ -1,4 +1,4 @@
-%% Solids Lab
+%% Solids Lab: Tensile Tests
 % Trevor Burgoyne 7 Dec 2022
 % AEM 4602W, Lab Group 3Bi
 
@@ -112,6 +112,8 @@ AL6061.strength = AL6061.stress(idx); % MPa, ultimate strength (where necking st
 
 range = 20:100; % Idx range for E calculation
 AL6061.E = mean(diff(AL6061.stress(range))./diff(AL6061.strain(range))); % MPa, Young's Modulus
+% P = polyfit(AL6061.strain(range),AL6061.stress(range),1);
+% AL6061.E = P(1)
 
 test = AL6061.stress ./ (AL6061.strain - .002); % Slope of .2% offset line at each point
 idxs = find(test >= AL6061.E); % Find which best matches E
@@ -143,11 +145,13 @@ SS1018.volts2in  = SS1018.xb / data.Chan102(end_idx); % in/volt using recorded m
 SS1018.stress = (data.Chan101(2:end_idx)*SS1018.volts2lbs / SS1018.a)*psi2mpa; % MPa, engineering stress
 SS1018.strain = data.Chan102(2:end_idx)*SS1018.volts2in / SS1018.l; % unitless, engineering strain
 
-SS1018.tough = trapz(SS1018.strain, SS1018.stress); % MPa, toughness
+SS1018.tough = trapz(SS1018.strain*(SS1018.l/SS1018.w), SS1018.stress*(SS1018.l/SS1018.w)); % MPa, toughness
 SS1018.strength = SS1018.stress(idx); % MPa, ultimate strength (where necking starts)
 
 range = 20:100; % Idx range for E calculation
-SS1018.E = mean(diff(SS1018.stress(range))./diff(SS1018.strain(range))); % MPa, Young's Modulus
+% SS1018.E = mean(diff(SS1018.stress(range))./diff(SS1018.strain(range))); % MPa, Young's Modulus
+P = polyfit(SS1018.strain(range),SS1018.stress(range),1);
+SS1018.E = P(1);
 
 test = SS1018.stress ./ (SS1018.strain - .002); % Slope of .2% offset line at each point
 idxs = find(test >= SS1018.E); % Find which best matches E
@@ -162,6 +166,29 @@ plot(SS1018.strain*(SS1018.l/SS1018.w), SS1018.stress, '-x')
 
 xlabel('Strain (unitless)'); ylabel('Stress (MPa)'); title('SS1018');
 grid on
+
+%% SS1018 DIC Data (Before Yielding)
+% times = [30, 32, 40, 50, 60, 70, 80, 90, 100];
+SS1018.exx = [-.108, -.214, -.045, -.352, -.121, -.084, -.035, 0.099, -.231];
+SS1018.eyy = [.101, .187, -.137, -.075, .314, .123, .256, -.011, .357];
+% SS1018.v_elastic = mean(diff(-SS1018.exx)./diff(SS1018.eyy));
+P = polyfit(SS1018.eyy,-SS1018.exx,1);
+SS1018.v_elastic = P(1);
+figure()
+plot(SS1018.eyy, -SS1018.exx); grid on; 
+ylabel('-e_{xx} (%)');xlabel('e_{yy} (%)');title('-e_{xx} vs e_{yy} (elastic)')
+
+
+%% SS1018 DIC Data (After Yielding)
+% times = [100, 130, 160, 190, 220, 250, 280, 310, 340, 370, 400];
+SS1018.exx = [-.231, -1.210, -1.939, -2.991, -3.233, -4.350, -5.174, -6.014, -6.961, -8.099, -9.607];
+SS1018.eyy = [0.357, 2.650, 4.076, 5.834, 7.409, 9.352, 11.628, 13.831, 16.020, 18.689, 22.989];
+% SS1018.v_plastic = mean(diff(-SS1018.exx)./diff(SS1018.eyy));
+P = polyfit(SS1018.eyy,-SS1018.exx,1);
+SS1018.v_plastic = P(1);
+figure()
+plot(SS1018.eyy, -SS1018.exx); grid on; 
+ylabel('-e_{xx} (%)');xlabel('e_{yy} (%)');title('-e_{xx} vs e_{yy} (plastic)')
 
 
 
