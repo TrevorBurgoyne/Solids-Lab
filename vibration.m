@@ -26,27 +26,28 @@ whiteNoise = struct();
 whiteNoise.data = readtable('./Vibrations/whiteNoise-20samples.csv'); % HZ, DB
 
 figure()
-plot(whiteNoise.data.HZ, whiteNoise.data.DB, '-x'); grid on;
+plot(whiteNoise.data.HZ, whiteNoise.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
 [pks, locs] = findpeaks(whiteNoise.data.DB);
 idxs = find(pks > 0.3);
 whiteNoise.wns = whiteNoise.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
 hold on;
-plot(whiteNoise.wns, pks(idxs), '*')
+plot(whiteNoise.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
 xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('White Noise');
-
+legend('location', 'southeast')
 
 %% Pink Noise
 pinkNoise = struct();
 pinkNoise.data = readtable('./Vibrations/pinkNoise.csv'); % HZ, DB
 
 figure()
-plot(pinkNoise.data.HZ, pinkNoise.data.DB, '-x'); grid on;
+plot(pinkNoise.data.HZ, pinkNoise.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
 [pks, locs] = findpeaks(pinkNoise.data.DB);
 idxs = find(pks > 0.3);
 pinkNoise.wns = pinkNoise.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
 hold on;
-plot(pinkNoise.wns, pks(idxs), '*')
+plot(pinkNoise.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
 xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('Pink Noise');
+legend('location', 'southeast')
 
 
 %% 0-10 Hz Sine Sweep
@@ -54,13 +55,14 @@ sweep10 = struct();
 sweep10.data = readtable('./Vibrations/SineSweep10Hz.csv'); % HZ, DB
 
 figure()
-plot(sweep10.data.HZ, sweep10.data.DB, '-x'); grid on;
+plot(sweep10.data.HZ, sweep10.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
 [pks, locs] = findpeaks(sweep10.data.DB);
 idxs = find(pks > -20);
 sweep10.wns = sweep10.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
 hold on;
-plot(sweep10.wns, pks(idxs), '*')
+plot(sweep10.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
 xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('0-10 Hz Sine Sweep');
+legend('location', 'southeast')
 
 
 %% 0-200 Hz Sine Sweep
@@ -68,14 +70,15 @@ sweep200 = struct();
 sweep200.data = readtable('./Vibrations/SineSweep200Hz.csv'); % HZ, DB
 
 figure()
-plot(sweep200.data.HZ, sweep200.data.DB, '-x'); grid on;
+plot(sweep200.data.HZ, sweep200.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
 [pks, locs] = findpeaks(sweep200.data.DB);
 idxs = 1; % Keep first peak as well, even though it's smaller
 idxs = [idxs, find(pks > 0)']; 
 sweep200.wns = sweep200.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
 hold on;
-plot(sweep200.wns, pks(idxs), '*')
+plot(sweep200.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
 xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('0-200 Hz Sine Sweep');
+legend('location', 'southeast')
 
 
 %% First Five Natural Frequencies
