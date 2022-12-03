@@ -61,10 +61,10 @@ SS304.l = l; % in, gage length
 % SS304.a_red = (1 - SS304.ab/SS304.a)*100; % percent reduction of area at failure
 % SS304.true_strain = log(SS304.a / SS304.ab); % unitless, true strain at failure, assumes zero volume change
 
-% SS304.fmax = 1750.7; % lb
+SS304.fmax = 1750.7; % lb
 % SS304.xmax = 0.021; % in
 % SS304.fb = 1227.9; % lb
-% SS304.xb = 0.029; % in
+SS304.xb = 0.029; % in
 
 
 % Steel 1018
@@ -119,8 +119,6 @@ test = AL6061.stress ./ (AL6061.strain - .002); % Slope of .2% offset line at ea
 idxs = find(test >= AL6061.E); % Find which best matches E
 AL6061.yield = AL6061.stress(idxs(1)); % MPa, yield stress (.2% offset)
 
-% Poisson ratio
-
 %% Plot
 figure()
 hold on
@@ -130,6 +128,47 @@ plot(AL6061.strain, AL6061.stress, '-x')
 % range = linspace(0,0.005,100);
 % plot(range, (AL6061.E/mpa2gpa)*range + .002);
 xlabel('Strain (unitless)'); ylabel('Stress (MPa)'); title('AL6061');
+grid on
+
+%% SS304 Test
+% time, Chan101 (Volts, load cell), time, Chan102 (Volts, crosshead), time, Chan103 (Volts, extensometer)
+data = readtable('dataSS304.csv');
+idx = find(data.Chan103 == 1.94125) - 1; % idx where extensometer was removed
+end_idxs = find(data.Chan101 < 0.001); % idx where sample broke
+end_idx = end_idxs(1) - 1;
+
+SS304.volts2lbs = SS304.fmax / max(data.Chan101); % lbs/volt using recorded max force
+SS304.volts2in  = SS304.xb / data.Chan102(end_idx); % in/volt using recorded max displacement
+
+SS304.stress = (data.Chan101(2:end_idx)*SS304.volts2lbs / SS304.a)*psi2mpa; % MPa, engineering stress
+
+SS304.strain = data.Chan103(2:idx)*ext_volts2in / SS304.w; % unitless, engineering strain
+eu = SS304.strain(end); % Last value of extensometer strain 
+cross_eu = data.Chan102(idx); % Volts, value of crosshead reading when extensometer was removed 
+SS304.strain = [SS304.strain', (data.Chan102(idx+1:end_idx)-cross_eu)'*SS304.volts2in / SS304.w + eu]'; % Use crosshead data after extensometer was removed
+
+% Correct large strain offset
+offset_idx = 151; % Idx where extensometer reading jumps way down
+offset = SS304.strain(offset_idx-1) - SS304.strain(offset_idx);
+SS304.strain(offset_idx:end) = SS304.strain(offset_idx:end) + offset;
+
+% SS304.tough = trapz(SS304.strain, SS304.stress); % MPa, toughness
+% SS304.strength = SS304.stress(idx); % MPa, ultimate strength (where necking starts)
+% 
+% range = 20:100; % Idx range for E calculation
+% SS304.E = mean(diff(SS304.stress(range))./diff(SS304.strain(range))); % MPa, Young's Modulus
+% % P = polyfit(SS304.strain(range),SS304.stress(range),1);
+% % SS304.E = P(1)
+% 
+% test = SS304.stress ./ (SS304.strain - .002); % Slope of .2% offset line at each point
+% idxs = find(test >= SS304.E); % Find which best matches E
+% SS304.yield = SS304.stress(idxs(1)); % MPa, yield stress (.2% offset)
+
+%% Plot
+figure()
+hold on
+plot(SS304.strain(1:end), SS304.stress(1:end), '-x')
+xlabel('Strain (unitless)'); ylabel('Stress (MPa)'); title('SS304');
 grid on
 
 
