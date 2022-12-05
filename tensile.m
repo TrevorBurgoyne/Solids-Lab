@@ -53,13 +53,13 @@ SS304.t = mean(t); % in
 SS304.a = SS304.w*SS304.t; % in^2, cross-sectional area
 SS304.l = l; % in, gage length
 
-% wb = [.1205, .123]; % in, sample width at break
-% tb = [.083, .083]; % in, sample thickness at break
-% SS304.wb = mean(wb); % in
-% SS304.tb = mean(tb); % in
-% SS304.ab = SS304.wb*SS304.tb; % in^2, cross-sectional area of break
-% SS304.a_red = (1 - SS304.ab/SS304.a)*100; % percent reduction of area at failure
-% SS304.true_strain = log(SS304.a / SS304.ab); % unitless, true strain at failure, assumes zero volume change
+wb = 3.37*mm2in; % in, sample width at break
+tb = 1.95*mm2in; % mm->in, sample thickness at break
+SS304.wb = mean(wb); % in
+SS304.tb = mean(tb); % in
+SS304.ab = SS304.wb*SS304.tb; % in^2, cross-sectional area of break
+SS304.a_red = (1 - SS304.ab/SS304.a)*100; % percent reduction of area at failure
+SS304.true_strain = log(SS304.a / SS304.ab); % unitless, true strain at failure, assumes zero volume change
 
 SS304.fmax = 1750.7; % lb
 % SS304.xmax = 0.021; % in
@@ -102,10 +102,10 @@ AL6061.volts2in  = AL6061.xb / data.Chan102(end_idx); % in/volt using recorded m
 
 AL6061.stress = (data.Chan101(2:end_idx)*AL6061.volts2lbs / AL6061.a)*psi2mpa; % MPa, engineering stress
 
-AL6061.strain = data.Chan103(2:idx)*ext_volts2in / AL6061.w; % unitless, engineering strain
+AL6061.strain = data.Chan103(2:idx)*ext_volts2in / AL6061.l; % unitless, engineering strain
 eu = AL6061.strain(end); % Last value of extensometer strain 
 cross_eu = data.Chan102(idx); % Volts, value of crosshead reading when extensometer was removed 
-AL6061.strain = [AL6061.strain', (data.Chan102(idx+1:end_idx)-cross_eu)'*AL6061.volts2in / AL6061.w + eu]'; % Use crosshead data after extensometer was removed
+AL6061.strain = [AL6061.strain', (data.Chan102(idx+1:end_idx)-cross_eu)'*AL6061.volts2in / AL6061.l + eu]'; % Use crosshead data after extensometer was removed
 
 AL6061.tough = trapz(AL6061.strain, AL6061.stress); % MPa, toughness
 AL6061.strength = AL6061.stress(idx); % MPa, ultimate strength (where necking starts)
