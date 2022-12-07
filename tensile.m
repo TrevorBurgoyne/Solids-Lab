@@ -11,6 +11,7 @@ volts2in  = 2/10; % in/volt tensile test machine conversion
 
 %% Extensometer Calibration
 d = 0.1*mm2in; % mm -> in, micrometer distance
+% d = 0.1;
 V = [0.953, 0.956, 0.955]; % Volts, extensometer reading at d
 V_avg = mean(V);
 ext_volts2in = d/V_avg; % in/Volt, extensometer conversion
@@ -102,10 +103,10 @@ AL6061.volts2in  = AL6061.xb / data.Chan102(end_idx); % in/volt using recorded m
 
 AL6061.stress = (data.Chan101(2:end_idx)*AL6061.volts2lbs / AL6061.a)*psi2mpa; % MPa, engineering stress
 
-AL6061.strain = data.Chan103(2:idx)*ext_volts2in / AL6061.l; % unitless, engineering strain
+AL6061.strain = data.Chan103(2:idx)*ext_volts2in / AL6061.w; % unitless, engineering strain
 eu = AL6061.strain(end); % Last value of extensometer strain 
 cross_eu = data.Chan102(idx); % Volts, value of crosshead reading when extensometer was removed 
-AL6061.strain = [AL6061.strain', (data.Chan102(idx+1:end_idx)-cross_eu)'*AL6061.volts2in / AL6061.l + eu]'; % Use crosshead data after extensometer was removed
+AL6061.strain = [AL6061.strain', (data.Chan102(idx+1:end_idx)-cross_eu)'*AL6061.volts2in / AL6061.w + eu]'; % Use crosshead data after extensometer was removed
 
 AL6061.tough = trapz(AL6061.strain, AL6061.stress); % MPa, toughness
 AL6061.strength = AL6061.stress(idx); % MPa, ultimate strength (where necking starts)
@@ -117,7 +118,7 @@ AL6061.E = mean(diff(AL6061.stress(range))./diff(AL6061.strain(range))); % MPa, 
 
 test = AL6061.stress ./ (AL6061.strain - .002); % Slope of .2% offset line at each point
 idxs = find(test >= AL6061.E); % Find which best matches E
-AL6061.yield = AL6061.stress(idxs(1)); % MPa, yield stress (.2% offset)
+AL6061.yield = AL6061.stress(idxs(1)) % MPa, yield stress (.2% offset)
 
 %% Plot
 figure()
@@ -137,12 +138,19 @@ idx = find(data.Chan103 == 1.94125) - 1; % idx where extensometer was removed
 end_idxs = find(data.Chan101 < 0.001); % idx where sample broke
 end_idx = end_idxs(1) - 1;
 
+SS304.fmax = 1500; % lb
+SS304.xb = 0.029; % in
+
 SS304.volts2lbs = SS304.fmax / max(data.Chan101); % lbs/volt using recorded max force
 SS304.volts2in  = SS304.xb / data.Chan102(end_idx); % in/volt using recorded max displacement
+% SS304.volts2lbs = volts2lbs;
+% SS304.volts2in = volts2in;
 
 SS304.stress = (data.Chan101(2:end_idx)*SS304.volts2lbs / SS304.a)*psi2mpa; % MPa, engineering stress
 
-SS304.strain = data.Chan103(2:idx)*ext_volts2in / SS304.w; % unitless, engineering strain
+% SS304.strain = data.Chan103(2:idx)*ext_volts2in / SS304.w; % unitless, engineering strain
+SS304.strain = data.Chan103(2:idx)*.05*volts2in / SS304.w; % unitless, engineering strain
+
 eu = SS304.strain(end); % Last value of extensometer strain 
 cross_eu = data.Chan102(idx); % Volts, value of crosshead reading when extensometer was removed 
 SS304.strain = [SS304.strain', (data.Chan102(idx+1:end_idx)-cross_eu)'*SS304.volts2in / SS304.w + eu]'; % Use crosshead data after extensometer was removed
@@ -152,17 +160,17 @@ offset_idx = 151; % Idx where extensometer reading jumps way down
 offset = SS304.strain(offset_idx-1) - SS304.strain(offset_idx);
 SS304.strain(offset_idx:end) = SS304.strain(offset_idx:end) + offset;
 
-% SS304.tough = trapz(SS304.strain, SS304.stress); % MPa, toughness
-% SS304.strength = SS304.stress(idx); % MPa, ultimate strength (where necking starts)
-% 
-% range = 20:100; % Idx range for E calculation
+SS304.tough = trapz(SS304.strain, SS304.stress); % MPa, toughness
+SS304.strength = SS304.stress(idx); % MPa, ultimate strength (where necking starts)
+
+range = 20:100; % Idx range for E calculation
 % SS304.E = mean(diff(SS304.stress(range))./diff(SS304.strain(range))); % MPa, Young's Modulus
-% % P = polyfit(SS304.strain(range),SS304.stress(range),1);
-% % SS304.E = P(1)
-% 
-% test = SS304.stress ./ (SS304.strain - .002); % Slope of .2% offset line at each point
-% idxs = find(test >= SS304.E); % Find which best matches E
-% SS304.yield = SS304.stress(idxs(1)); % MPa, yield stress (.2% offset)
+P = polyfit(SS304.strain(range),SS304.stress(range),1);
+SS304.E = P(1);
+
+test = SS304.stress ./ (SS304.strain - .002); % Slope of .2% offset line at each point
+idxs = find(test >= SS304.E); % Find which best matches E
+SS304.yield = SS304.stress(idxs(1)) % MPa, yield stress (.2% offset)
 
 %% Plot
 figure()
@@ -194,7 +202,7 @@ SS1018.E = P(1);
 
 test = SS1018.stress ./ (SS1018.strain - .002); % Slope of .2% offset line at each point
 idxs = find(test >= SS1018.E); % Find which best matches E
-SS1018.yield = SS1018.stress(idxs(1)); % MPa, yield stress (.2% offset)
+SS1018.yield = SS1018.stress(idxs(1)) % MPa, yield stress (.2% offset)
 
 % Poisson ratio
 

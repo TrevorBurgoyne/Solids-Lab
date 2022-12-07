@@ -1,0 +1,278 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Solids Lab: Vibrations</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-12-06"><meta name="DC.source" content="vibration.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Solids Lab: Vibrations</h1><!--introduction--><p>Trevor Burgoyne 7 Dec 2022 AEM 4602W, Lab Group 3Bi</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Beam Properties</a></li><li><a href="#2">Theory</a></li><li><a href="#3">White Noise</a></li><li><a href="#4">Pink Noise</a></li><li><a href="#5">0-10 Hz Sine Sweep</a></li><li><a href="#6">0-200 Hz Sine Sweep</a></li><li><a href="#7">First Five Natural Frequencies</a></li></ul></div><h2 id="1">Beam Properties</h2><pre class="codeinput">l = 43.375; <span class="comment">% in, length</span>
+w = 1.002; <span class="comment">% in, width</span>
+t = 0.264; <span class="comment">% in, thickness</span>
+x_accel = 0.386; <span class="comment">% in, distance from tip to accelerometer</span>
+d = l - x_accel; <span class="comment">% in, distance from accel to shaker</span>
+A = w*t; <span class="comment">% in^2, cross-sectional area</span>
+
+<span class="comment">% rhoMetric2rhoImperial = 0.00112287; % g/cm^3 -&gt; slug/in^3</span>
+<span class="comment">% rho = 2.7*rhoMetric2rhoImperial; % g/cm^3 -&gt; slug/in^3, density</span>
+rho = 0.0975; <span class="comment">% lb/in^3</span>
+E = 10e6; <span class="comment">% psi, Elastic Modulus</span>
+I = (w*t^3)/12; <span class="comment">% in^4, moment of inertia of the beam cross-section</span>
+g = 3.86; <span class="comment">% gravitational acceleration</span>
+</pre><h2 id="2">Theory</h2><pre class="codeinput">kn = [3.52, 22, 61.7, 121, 200];
+theory_wns = round((kn/2*pi)*sqrt((E*I*g)/(rho*A*l^4))*100)/100 <span class="comment">% Hz, natural frequencies</span>
+</pre><pre class="codeoutput">
+theory_wns =
+
+    4.4600   27.8500   78.1100  153.1900  253.2100
+
+</pre><h2 id="3">White Noise</h2><pre class="codeinput">whiteNoise = struct();
+whiteNoise.data = readtable(<span class="string">'./Vibrations/whiteNoise-20samples.csv'</span>); <span class="comment">% HZ, DB</span>
+
+figure()
+plot(whiteNoise.data.HZ, whiteNoise.data.DB, <span class="string">'-x'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Accelerometer Response'</span>); grid <span class="string">on</span>;
+[pks, locs] = findpeaks(whiteNoise.data.DB);
+idxs = find(pks &gt; 0.3);
+whiteNoise.wns = whiteNoise.data.HZ(locs(idxs))' <span class="comment">% Hz, frequencies of the peaks</span>
+hold <span class="string">on</span>;
+plot(whiteNoise.wns, pks(idxs), <span class="string">'*'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Natural Frequencies'</span>)
+xlabel(<span class="string">'Frequency (Hz)'</span>);ylabel(<span class="string">'Intensity (dB)'</span>);title(<span class="string">'White Noise'</span>);
+legend(<span class="string">'location'</span>, <span class="string">'southeast'</span>)
+</pre><pre class="codeoutput">
+whiteNoise = 
+
+  struct with fields:
+
+    data: [401&times;2 table]
+     wns: [25 71 141 233 347 483 643]
+
+</pre><img vspace="5" hspace="5" src="vibration_01.png" alt=""> <h2 id="4">Pink Noise</h2><pre class="codeinput">pinkNoise = struct();
+pinkNoise.data = readtable(<span class="string">'./Vibrations/pinkNoise.csv'</span>); <span class="comment">% HZ, DB</span>
+
+figure()
+plot(pinkNoise.data.HZ, pinkNoise.data.DB, <span class="string">'-x'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Accelerometer Response'</span>); grid <span class="string">on</span>;
+[pks, locs] = findpeaks(pinkNoise.data.DB);
+idxs = find(pks &gt; 0.3);
+pinkNoise.wns = pinkNoise.data.HZ(locs(idxs))' <span class="comment">% Hz, frequencies of the peaks</span>
+hold <span class="string">on</span>;
+plot(pinkNoise.wns, pks(idxs), <span class="string">'*'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Natural Frequencies'</span>)
+xlabel(<span class="string">'Frequency (Hz)'</span>);ylabel(<span class="string">'Intensity (dB)'</span>);title(<span class="string">'Pink Noise'</span>);
+legend(<span class="string">'location'</span>, <span class="string">'southeast'</span>)
+</pre><pre class="codeoutput">
+pinkNoise = 
+
+  struct with fields:
+
+    data: [401&times;2 table]
+     wns: [25 71 141 233 347 485 643]
+
+</pre><img vspace="5" hspace="5" src="vibration_02.png" alt=""> <h2 id="5">0-10 Hz Sine Sweep</h2><pre class="codeinput">sweep10 = struct();
+sweep10.data = readtable(<span class="string">'./Vibrations/SineSweep10Hz.csv'</span>); <span class="comment">% HZ, DB</span>
+
+figure()
+plot(sweep10.data.HZ, sweep10.data.DB, <span class="string">'-x'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Accelerometer Response'</span>); grid <span class="string">on</span>;
+[pks, locs] = findpeaks(sweep10.data.DB);
+idxs = find(pks &gt; -20);
+sweep10.wns = sweep10.data.HZ(locs(idxs))' <span class="comment">% Hz, frequencies of the peaks</span>
+hold <span class="string">on</span>;
+plot(sweep10.wns, pks(idxs), <span class="string">'*'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Natural Frequencies'</span>)
+xlabel(<span class="string">'Frequency (Hz)'</span>);ylabel(<span class="string">'Intensity (dB)'</span>);title(<span class="string">'0-10 Hz Sine Sweep'</span>);
+legend(<span class="string">'location'</span>, <span class="string">'southeast'</span>)
+</pre><pre class="codeoutput">
+sweep10 = 
+
+  struct with fields:
+
+    data: [401&times;2 table]
+     wns: 4.0600
+
+</pre><img vspace="5" hspace="5" src="vibration_03.png" alt=""> <h2 id="6">0-200 Hz Sine Sweep</h2><pre class="codeinput">sweep200 = struct();
+sweep200.data = readtable(<span class="string">'./Vibrations/SineSweep200Hz.csv'</span>); <span class="comment">% HZ, DB</span>
+
+figure()
+plot(sweep200.data.HZ, sweep200.data.DB, <span class="string">'-x'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Accelerometer Response'</span>); grid <span class="string">on</span>;
+[pks, locs] = findpeaks(sweep200.data.DB);
+idxs = 1; <span class="comment">% Keep first peak as well, even though it's smaller</span>
+idxs = [idxs, find(pks &gt; 0)'];
+sweep200.wns = sweep200.data.HZ(locs(idxs))' <span class="comment">% Hz, frequencies of the peaks</span>
+hold <span class="string">on</span>;
+plot(sweep200.wns, pks(idxs), <span class="string">'*'</span>, <span class="string">'DisplayName'</span>, <span class="string">'Natural Frequencies'</span>)
+xlabel(<span class="string">'Frequency (Hz)'</span>);ylabel(<span class="string">'Intensity (dB)'</span>);title(<span class="string">'0-200 Hz Sine Sweep'</span>);
+legend(<span class="string">'location'</span>, <span class="string">'southeast'</span>)
+</pre><pre class="codeoutput">
+sweep200 = 
+
+  struct with fields:
+
+    data: [401&times;2 table]
+     wns: [3.9850 25.8700 70.6500 140.8000]
+
+</pre><img vspace="5" hspace="5" src="vibration_04.png" alt=""> <h2 id="7">First Five Natural Frequencies</h2><pre class="codeinput">wns = [
+    mean([sweep10.wns(1), sweep200.wns(1)]),<span class="keyword">...</span>
+    mean([sweep200.wns(2), whiteNoise.wns(1), pinkNoise.wns(1)]),<span class="keyword">...</span>
+    mean([sweep200.wns(3), whiteNoise.wns(2), pinkNoise.wns(2)]),<span class="keyword">...</span>
+    mean([sweep200.wns(4), whiteNoise.wns(3), pinkNoise.wns(3)]),<span class="keyword">...</span>
+    mean([whiteNoise.wns(4), pinkNoise.wns(4)])<span class="keyword">...</span>
+]
+</pre><pre class="codeoutput">
+wns =
+
+    4.0225   25.2900   70.8833  140.9333  233.0000
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Solids Lab: Vibrations
+% Trevor Burgoyne 7 Dec 2022
+% AEM 4602W, Lab Group 3Bi
+
+%% Beam Properties
+l = 43.375; % in, length
+w = 1.002; % in, width
+t = 0.264; % in, thickness
+x_accel = 0.386; % in, distance from tip to accelerometer
+d = l - x_accel; % in, distance from accel to shaker
+A = w*t; % in^2, cross-sectional area
+
+% rhoMetric2rhoImperial = 0.00112287; % g/cm^3 -> slug/in^3
+% rho = 2.7*rhoMetric2rhoImperial; % g/cm^3 -> slug/in^3, density
+rho = 0.0975; % lb/in^3
+E = 10e6; % psi, Elastic Modulus
+I = (w*t^3)/12; % in^4, moment of inertia of the beam cross-section
+g = 3.86; % gravitational acceleration
+
+%% Theory
+kn = [3.52, 22, 61.7, 121, 200];
+theory_wns = round((kn/2*pi)*sqrt((E*I*g)/(rho*A*l^4))*100)/100 % Hz, natural frequencies
+
+%% White Noise
+whiteNoise = struct();
+whiteNoise.data = readtable('./Vibrations/whiteNoise-20samples.csv'); % HZ, DB
+
+figure()
+plot(whiteNoise.data.HZ, whiteNoise.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
+[pks, locs] = findpeaks(whiteNoise.data.DB);
+idxs = find(pks > 0.3);
+whiteNoise.wns = whiteNoise.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
+hold on;
+plot(whiteNoise.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
+xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('White Noise');
+legend('location', 'southeast')
+
+%% Pink Noise
+pinkNoise = struct();
+pinkNoise.data = readtable('./Vibrations/pinkNoise.csv'); % HZ, DB
+
+figure()
+plot(pinkNoise.data.HZ, pinkNoise.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
+[pks, locs] = findpeaks(pinkNoise.data.DB);
+idxs = find(pks > 0.3);
+pinkNoise.wns = pinkNoise.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
+hold on;
+plot(pinkNoise.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
+xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('Pink Noise');
+legend('location', 'southeast')
+
+
+%% 0-10 Hz Sine Sweep
+sweep10 = struct();
+sweep10.data = readtable('./Vibrations/SineSweep10Hz.csv'); % HZ, DB
+
+figure()
+plot(sweep10.data.HZ, sweep10.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
+[pks, locs] = findpeaks(sweep10.data.DB);
+idxs = find(pks > -20);
+sweep10.wns = sweep10.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
+hold on;
+plot(sweep10.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
+xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('0-10 Hz Sine Sweep');
+legend('location', 'southeast')
+
+
+%% 0-200 Hz Sine Sweep
+sweep200 = struct();
+sweep200.data = readtable('./Vibrations/SineSweep200Hz.csv'); % HZ, DB
+
+figure()
+plot(sweep200.data.HZ, sweep200.data.DB, '-x', 'DisplayName', 'Accelerometer Response'); grid on;
+[pks, locs] = findpeaks(sweep200.data.DB);
+idxs = 1; % Keep first peak as well, even though it's smaller
+idxs = [idxs, find(pks > 0)']; 
+sweep200.wns = sweep200.data.HZ(locs(idxs))' % Hz, frequencies of the peaks
+hold on;
+plot(sweep200.wns, pks(idxs), '*', 'DisplayName', 'Natural Frequencies')
+xlabel('Frequency (Hz)');ylabel('Intensity (dB)');title('0-200 Hz Sine Sweep');
+legend('location', 'southeast')
+
+
+%% First Five Natural Frequencies
+wns = [
+    mean([sweep10.wns(1), sweep200.wns(1)]),...
+    mean([sweep200.wns(2), whiteNoise.wns(1), pinkNoise.wns(1)]),...
+    mean([sweep200.wns(3), whiteNoise.wns(2), pinkNoise.wns(2)]),...
+    mean([sweep200.wns(4), whiteNoise.wns(3), pinkNoise.wns(3)]),...
+    mean([whiteNoise.wns(4), pinkNoise.wns(4)])...
+]
+
+##### SOURCE END #####
+--></body></html>
